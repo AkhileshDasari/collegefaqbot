@@ -1,4 +1,4 @@
-# Collegefaqbot
+# Collegefaqbot!
 This Education FAQ Chatbot is built with Streamlit and powered by Google’s Gemini Pro API. It provides instant, AI-generated answers to common college-related queries such as admissions, fee structure, placements, internships, and hostel facilities. Users can simply type a question, and the chatbot responds with relevant information using natural language generation. The interface is simple and intuitive, making it easy for students to interact. Additionally, the chatbot maintains a session-based chat history, allowing users to follow their conversation context throughout their interaction. It's an efficient tool for quickly accessing accurate educational information.
 -------------------------------------------------------------
 ## 📌 Features
