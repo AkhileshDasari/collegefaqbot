@@ -4,21 +4,48 @@ load_dotenv()  # loading all the environment variables
 import streamlit as st
 import os
 import google.generativeai as genai
+import groq
 
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+# Setup Groq client
+groq_client = None
+groq_api_key = os.getenv("GROQ_API_KEY")
+if groq_api_key:
+    groq_client = groq.Groq(api_key=groq_api_key)
 
 # Function to load Gemini Pro model and get responses
 model = genai.GenerativeModel("gemini-pro")
 chat = model.start_chat(history=[])
 
 def get_gemini_response(question):
-    response = chat.send_message(question, stream=True)
-    response_text = ""
-    source_info = "Source: AI-based responses generated using educational resources."
-    
-    for chunk in response:
-        response_text += chunk.text
-    return response_text, source_info
+    # Try Groq first
+    if groq_client:
+        try:
+            # We use a fast conversational model for this like mixtral or llama3
+            response = groq_client.chat.completions.create(
+                model="llama3-8b-8192", 
+                messages=[{"role": "user", "content": question}],
+                stream=False
+            )
+            response_text = response.choices[0].message.content
+            source_info = "Source: AI-based responses generated using Groq."
+            return response_text, source_info
+        except Exception as e:
+            print(f"Groq API call failed: {e}. Falling back to Google Gemini...")
+            
+    # Fallback to Google Gemini
+    try:
+        response = chat.send_message(question, stream=True)
+        response_text = ""
+        source_info = "Source: AI-based responses generated using Google API (Backup)."
+        
+        for chunk in response:
+            response_text += chunk.text
+        return response_text, source_info
+    except Exception as e:
+        return f"Error connecting to AI models: {e}", "Source: Error"
+
 
 # Initialize our Streamlit app
 st.set_page_config(page_title="Education Chatbot", layout="wide")
